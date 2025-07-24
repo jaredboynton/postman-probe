@@ -1,0 +1,54 @@
+
+api:
+  port: 3001  # Use fixed port for testing
+  host: "127.0.0.1"
+  cors:
+    enabled: false
+  rate_limit:
+    enabled: false
+  logging:
+    enabled: false
+
+database:
+  path: ":memory:"
+  type: "sqlite"
+  sqlite:
+    filename: ":memory:"
+    options:
+      timeout: 5000
+
+postman:
+  rate_limit: 300
+  limits:
+    max_workspaces: 100
+    max_collections_per_workspace: 50
+
+collection:
+  schedule: "0 */6 * * *"
+  timeout: 300000
+
+governance:
+  weights:
+    documentation: 0.3
+    testing: 0.25
+    monitoring: 0.25
+    organization: 0.2
+  thresholds:
+    excellent: 90
+    good: 70
+    needs_improvement: 50
+
+logging:
+  level: "error"
+  format: "json"
+  file: false
+  console:
+    enabled: true
+
+health:
+  database_timeout: 5000
+  api_timeout: 10000
+
+security:
+  authentication:
+    enabled: false  # Disabled for backward compatibility tests

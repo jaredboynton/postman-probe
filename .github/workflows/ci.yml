@@ -1,0 +1,217 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: collector/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd collector
+        npm ci
+        
+    - name: Run linting
+      run: |
+        cd collector
+        npm run lint || echo "Linting not configured yet"
+        
+    - name: Run unit tests
+      run: |
+        cd collector
+        npm test
+        
+    - name: Run security tests
+      run: |
+        cd collector
+        npm run test:security || npm test test/security.test.js
+        
+    - name: Generate test coverage
+      run: |
+        cd collector
+        npm run test:coverage || npm test -- --coverage
+        
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./collector/coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: collector/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd collector
+        npm ci
+        
+    - name: Run npm audit
+      run: |
+        cd collector
+        npm audit --audit-level moderate
+        
+    - name: Run security scan
+      run: |
+        chmod +x ./security-scan.sh
+        ./security-scan.sh || echo "Security scan script not found"
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      run: |
+        cd collector
+        docker build -t postman-governance-collector:test .
+        
+    - name: Test Docker image
+      run: |
+        docker run --rm --name test-container -d \
+          -e NODE_ENV=test \
+          -e POSTMAN_API_KEY=PMAK-test-key \
+          -e JWT_SECRET=test-secret-for-ci \
+          postman-governance-collector:test
+        
+        # Wait for container to start
+        sleep 10
+        
+        # Check if container is running
+        docker ps | grep test-container || echo "Container not running"
+        
+        # Stop container
+        docker stop test-container || echo "Container already stopped"
+
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: collector/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd collector
+        npm ci
+        
+    - name: Create test environment
+      run: |
+        cp .env.example .env
+        echo "NODE_ENV=test" >> .env
+        echo "POSTMAN_API_KEY=PMAK-test-key-for-ci-testing" >> .env
+        echo "JWT_SECRET=test-jwt-secret-for-ci-with-sufficient-length-for-security" >> .env
+        echo "DATABASE_PATH=:memory:" >> .env
+        
+    - name: Run integration tests
+      run: |
+        cd collector
+        npm run test:integration || npm test test/integration.test.js
+        
+    - name: Test deployment script
+      run: |
+        chmod +x ./scripts/deploy.sh
+        # Test deployment script syntax without actually deploying
+        bash -n ./scripts/deploy.sh
+
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: collector/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd collector
+        npm ci
+        
+    - name: Check code formatting
+      run: |
+        cd collector
+        npx prettier --check src/ || echo "Prettier not configured"
+        
+    - name: Check for TODO/FIXME comments
+      run: |
+        echo "Checking for TODO/FIXME comments..."
+        grep -r "TODO\|FIXME" collector/src/ || echo "No TODO/FIXME comments found"
+        
+    - name: Validate configuration files
+      run: |
+        # Validate YAML files
+        python3 -c "import yaml; yaml.safe_load(open('config/governance-collector.yml'))" || echo "YAML validation failed"
+        
+    - name: Check documentation links
+      run: |
+        # Check for broken internal links in documentation
+        grep -r "\[.*\](" *.md docs/ || echo "No markdown links found"

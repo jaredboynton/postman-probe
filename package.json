@@ -1,0 +1,32 @@
+{
+  "name": "postman-probe",
+  "version": "1.0.0",
+  "description": "Enterprise API Governance Dashboard - Real-time metrics and compliance tracking for Postman workspaces",
+  "main": "api/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "winston": "^3.10.0",
+    "sqlite3": "^5.1.6",
+    "bcrypt": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.2",
+    "js-yaml": "^4.1.0",
+    "express-rate-limit": "^6.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.6.2",
+    "supertest": "^6.3.3"
+  },
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "cd collector && npm run dev",
+    "test": "cd collector && npm test",
+    "build": "echo 'Build complete'",
+    "vercel-build": "echo 'Vercel build complete'"
+  }
+}

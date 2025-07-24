@@ -1,0 +1,181 @@
+version: '3.8'
+
+secrets:
+  postman_api_key:
+    file: ./secrets/postman-api-key.txt
+  jwt_secret:
+    file: ./secrets/jwt-secret.txt
+
+services:
+  grafana:
+    image: grafana/grafana:11.6.2  # Latest patched version (July 2025)
+    container_name: postman-grafana
+    user: "472:472"  # Non-root grafana user
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/log/grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ./config/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./config/dashboards:/etc/grafana/provisioning/dashboards:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/jwt_secret
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_SECURITY_COOKIE_SECURE=true
+      - GF_SECURITY_STRICT_TRANSPORT_SECURITY=true
+      - GF_SECURITY_CONTENT_TYPE_PROTECTION=true
+      - GF_SECURITY_X_CONTENT_TYPE_OPTIONS=true
+      - GF_SECURITY_X_XSS_PROTECTION=true
+      - GF_LOG_LEVEL=info
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    secrets:
+      - jwt_secret
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - governance-network
+
+  governance-collector:
+    build:
+      context: ./collector
+      dockerfile: Dockerfile
+    container_name: postman-collector
+    user: "1001:1001"  # Non-root user
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - governance-data:/app/data
+      - ./config/governance-collector.yml:/app/config/governance-collector.yml:ro
+      - ./volumes/logs:/app/logs
+    secrets:
+      - postman_api_key
+      - jwt_secret
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - DATABASE_PATH=/app/data/governance.db
+      - API_PORT=3001
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "node", "/app/health-check.js"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - governance-network
+    depends_on:
+      - governance-db-init
+
+  governance-db-init:
+    build:
+      context: ./collector
+      dockerfile: Dockerfile
+    container_name: postman-db-init
+    user: "1001:1001"
+    volumes:
+      - governance-data:/app/data
+    environment:
+      - DATABASE_PATH=/app/data/governance.db
+    command: ["node", "/app/init-database.js"]
+    networks:
+      - governance-network
+    restart: "no"
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: postman-prometheus
+    user: "65534:65534"  # nobody user
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - prometheus-data:/prometheus
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - governance-network
+    depends_on:
+      - governance-collector
+
+  security-scanner:
+    image: aquasec/trivy:latest
+    container_name: postman-security-scanner
+    user: "1000:1000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./security-reports:/reports
+    command: >
+      sh -c "
+        echo 'Running security scans...' &&
+        trivy image --format json --output /reports/grafana-scan.json grafana/grafana:11.6.2 &&
+        trivy image --format json --output /reports/collector-scan.json postman-governance-stack-governance-collector &&
+        echo 'Security scans complete. Check ./security-reports/ for results.'
+      "
+    profiles: ["security-scan"]
+    networks:
+      - governance-network
+
+volumes:
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/grafana-data
+  governance-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/governance-data
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/prometheus-data
+
+networks:
+  governance-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+      driver: default

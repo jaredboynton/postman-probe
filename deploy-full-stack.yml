@@ -1,0 +1,70 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: postman-governance-full-stack
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/execution-environment: gen2
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/cpu-throttling: "false"
+        run.googleapis.com/memory: "2Gi"
+        run.googleapis.com/cpu: "1000m"
+    spec:
+      containerConcurrency: 1000
+      containers:
+      # Main Grafana Dashboard (port 3000)
+      - name: grafana
+        image: grafana/grafana:11.6.2
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          value: "admin"
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "admin123"
+        - name: GF_SECURITY_DISABLE_GRAVATAR
+          value: "true"
+        - name: GF_ANALYTICS_REPORTING_ENABLED
+          value: "false"
+        - name: GF_INSTALL_PLUGINS
+          value: "yesoreyeram-infinity-datasource"
+        - name: GF_SERVER_ROOT_URL
+          value: "/"
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
+          value: "false"
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        volumeMounts:
+        - name: grafana-config
+          mountPath: /etc/grafana/provisioning
+      
+      # Collector API (port 3001)
+      - name: collector
+        image: gcr.io/postman-probe-demo/postman-governance-collector:v3
+        ports:
+        - containerPort: 3001
+        env:
+        - name: POSTMAN_API_KEY
+          value: "{{POSTMAN_API_KEY}}"
+        - name: NODE_ENV
+          value: "production"
+        - name: API_PORT
+          value: "3001"
+        - name: API_HOST
+          value: "0.0.0.0"
+        - name: LOG_LEVEL
+          value: "INFO"
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      
+      volumes:
+      - name: grafana-config
+        configMap:
+          name: grafana-provisioning

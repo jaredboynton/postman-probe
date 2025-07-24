@@ -1,0 +1,26 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    url: http://postman-prometheus:9090
+    access: proxy
+    isDefault: true
+    editable: true
+    jsonData:
+      httpMethod: GET
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.54.1
+      
+  - name: Postman Governance API
+    type: yesoreyeram-infinity-datasource
+    uid: postman-governance-api
+    url: http://postman-collector:3001
+    access: proxy
+    isDefault: false
+    editable: true
+    jsonData:
+      httpMethod: GET
+      health_check_enabled: true
