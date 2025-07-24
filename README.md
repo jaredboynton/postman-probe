@@ -8,7 +8,7 @@
 
 ## Why Postman Probe?
 
-Enterprise teams love Postman for hands‑on collaboration, but translating day‑to‑day activity into *board‑level progress* has always felt… manual. Probe closes that gap. It auto‑pulls usage & governance data straight from the Postman API, crunches it against your business objectives, and publishes a living dashboard the C‑suite can skim before their first coffee.
+Enterprise teams love Postman for hands‑on collaboration, but translating day‑to‑day activity into *board‑level progress* has always felt… manual. Probe closes that gap. It auto‑pulls usage & governance data straight from the Postman API, crunches it against your business objectives, and publishes a living dashboard your boss can skim before their first coffee.
 
 **No more:**
 
@@ -38,7 +38,7 @@ Enterprise teams love Postman for hands‑on collaboration, but translating day�
 
 1. **Secure Service Account** — Probe uses a scoped Postman API key; no user passwords in sight.
 2. **Containerized Collector** — Docker image polls, normalizes, and stores metrics (PostgreSQL by default).
-3. **Instant Visualization** — We include Grafana dashboards, but swap in whatever BI tool your execs already trust.
+3. **Instant Visualization** — Grafana dashboards built in, but swap in whatever BI tool you already trust.
 4. **Webhook Rules Engine** *(optional)* — Trigger Jira tickets, Slack alerts, or PagerDuty incidents when thresholds tip.
 
 Deploy on a laptop for a quick proof‑of‑concept or drop it into Kubernetes for scale—either way, setup is under 30 minutes.
