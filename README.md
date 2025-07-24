@@ -87,4 +87,4 @@ Share the dashboard link with leadership—then take the weekend off.
 
 **Need help with enterprise rollout?** Reach out — we love helping teams turn API chaos into executive clarity. 
 
-© 2025 Postman, Inc. • Built with ♥ and way too much coffee
+Built with ♥ and way too much red bull
