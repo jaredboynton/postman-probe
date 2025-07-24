@@ -4,7 +4,7 @@
 
 > “This totally changes the way we communicate about our initiatives" — Early Design Partner
 
-[Probe Dashboard](https://github.com/jaredboynton/postman-probe/blob/main/dashboard.png)
+![Postman Probe Dashboard](https://github.com/jaredboynton/postman-probe/blob/main/dashboard.png)
 
 ## Why Postman Probe?
 
