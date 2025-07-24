@@ -4,6 +4,8 @@
 
 > “This totally changes the way we communicate about our initiatives" — Early Design Partner
 
+[Probe Dashboard](https://github.com/jaredboynton/postman-probe/blob/main/dashboard.png)
+
 ## Why Postman Probe?
 
 Enterprise teams love Postman for hands‑on collaboration, but translating day‑to‑day activity into *board‑level progress* has always felt… manual. Probe closes that gap. It auto‑pulls usage & governance data straight from the Postman API, crunches it against your business objectives, and publishes a living dashboard the C‑suite can skim before their first coffee.
