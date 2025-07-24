@@ -2,7 +2,7 @@
 
 ### Real‑time API governance insights your execs can actually act on
 
-> “This has changed the whole narrative around progress we’re making on our API initiatives" — Early Design Partner
+> “This totally changes the way we communicate about our initiatives" — Early Design Partner
 
 ## Why Postman Probe?
 
