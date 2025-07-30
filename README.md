@@ -55,11 +55,11 @@ export POSTMAN_API_KEY="your-api-key-here"
 ```
 
 **What you get in 5 minutes:**
-- 📊 **Live executive dashboard** with zero maintenance
-- 🔧 **API endpoints** for PowerBI/Tableau integration  
-- ⏰ **Auto-refreshing data** every 6 hours
-- 🔒 **Enterprise security** with proper authentication
-- 💰 **Serverless scaling** — only pay for what you use
+- **Live executive dashboard** with zero maintenance
+- **API endpoints** for PowerBI/Tableau integration  
+- **Auto-refreshing data** every 6 hours
+- **Enterprise security** with proper authentication
+- **Serverless scaling** — only pay for what you use
 
 **For teams with existing Grafana:**
 ```bash
