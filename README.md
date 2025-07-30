@@ -43,11 +43,6 @@ Enterprise teams love Postman for hands‑on collaboration, but translating day�
 
 Deploy on a laptop for a quick proof‑of‑concept or drop it into Kubernetes for scale—either way, setup is under 30 minutes.
 
-## Jared's Two Cents 🧑‍💻
-
-After hundreds of customer meetings, one pattern was clear: **great stories beat great stats**. Probe packages both. It lets platform teams walk into any QBR and say, *“Here’s the needle we moved this quarter—and here’s where we’re headed.”* That’s the conversation change that keeps budgets (and jobs) safe.
-# Get Started Today
-
 ## 🚀 Quick Deploy Options
 
 ### Option 1: Executive Demo (Cloud Run) — Recommended
@@ -84,9 +79,3 @@ docker compose up -d
 Paste your Postman API key when prompted.
 
 Share the dashboard link with leadership—then take the weekend off.
-
----
-
-**Need help with enterprise rollout?** Reach out — we love helping teams turn API chaos into executive clarity. 
-
-Built with ♥ and way too much red bull
