@@ -43,7 +43,7 @@ Enterprise teams love Postman for hands‑on collaboration, but translating day�
 
 ## 🚀 Quick Deploy Options
 
-### Option 1: Executive Demo (Cloud Run) — Recommended
+### Option 1: Serverless
 
 **For demo and production use:**
 
@@ -66,7 +66,7 @@ export POSTMAN_API_KEY="your-api-key-here"
 ./scripts/deploy-collector-only.sh
 ```
 
-### Option 2: Local Development
+### Option 2: Local
 
 ```bash
 git clone https://github.com/jaredboynton/postman-probe.git
