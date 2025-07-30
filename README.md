@@ -8,7 +8,7 @@
 
 ## Why Postman Probe?
 
-Enterprise teams love Postman for hands‑on collaboration, but translating day‑to‑day activity into *board‑level progress* has always felt… manual. Probe closes that gap. It auto‑pulls usage & governance data straight from the Postman API, crunches it against your business objectives, and publishes a living dashboard your boss can skim before their first coffee.
+Enterprise teams love Postman for hands‑on collaboration, but translating day‑to‑day activity into *API initiative progress* has always felt... wishy-washy. Probe closes that gap -- it auto‑pulls usage & governance data straight from the Postman API, diffs it against your business objectives, and publishes a living dashboard you can skim before your first coffee.
 
 **No more:**
 
@@ -36,18 +36,16 @@ Enterprise teams love Postman for hands‑on collaboration, but translating day�
 
 ## Under the Hood
 
-1. **Secure Service Account** — Probe uses a scoped Postman API key; no user passwords in sight.
+1. **Secure Service Account** — Probe uses a scoped Postman API key; no user passwords
 2. **Containerized Collector** — Docker image polls, normalizes, and stores metrics (PostgreSQL by default).
-3. **Instant Visualization** — Grafana dashboards built in, but swap in whatever BI tool you already trust.
-4. **Webhook Rules Engine** *(optional)* — Trigger Jira tickets, Slack alerts, or PagerDuty incidents when thresholds tip.
-
-Deploy on a laptop for a quick proof‑of‑concept or drop it into Kubernetes for scale—either way, setup is under 30 minutes.
+3. **Instant Visualization** — Grafana dashboards built in, but swap in whatever BI tool you already trust
+4. **Webhook Rules Engine** *(optional)* — Trigger Jira tickets, Slack alerts, or PagerDuty incidents
 
 ## 🚀 Quick Deploy Options
 
 ### Option 1: Executive Demo (Cloud Run) — Recommended
 
-**For boardroom-ready demos and production use:**
+**For demo and production use:**
 
 ```bash
 git clone https://github.com/jaredboynton/postman-probe.git
@@ -77,5 +75,3 @@ docker compose up -d
 ```
 
 Paste your Postman API key when prompted.
-
-Share the dashboard link with leadership—then take the weekend off.
