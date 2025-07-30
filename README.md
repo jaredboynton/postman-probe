@@ -1,6 +1,6 @@
 # 🚀 Introducing **Postman Probe**
 
-### Real‑time API governance insights your execs can actually act on
+### Real‑time API governance insights you can actually act on
 
 > “This totally changes the way we communicate about our initiatives" — Early Design Partner
 
